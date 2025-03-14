@@ -1,4 +1,7 @@
+using IKEA_Business_Logic_Layer.Services.DepartmentServices;
 using Ikea_Data_Acsess_Layer.Pesintance.Data;
+using Ikea_Data_Acsess_Layer.Pesintance.Repositories.Department;
+using Ikea_Data_Acsess_Layer.Pesintance.Repositories.Departments;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,7 +28,8 @@ namespace IKEA_PresentationLayer
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")) ;
             });
 
-
+            builder.Services.AddScoped<IDepartmentRepository, DepartmentReposatory>();
+            builder.Services.AddScoped<IDepartementServices, Departementservices>();
 
 
 
