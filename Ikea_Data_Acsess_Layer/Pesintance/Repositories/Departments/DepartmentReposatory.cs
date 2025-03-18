@@ -29,10 +29,10 @@ namespace Ikea_Data_Acsess_Layer.Pesintance.Repositories.Departments
 
             if (withNoTracking)
 
-                return dbcontext.Departements.AsNoTracking().ToList();
+                return dbcontext.Departements.Where(D=>D.IsDeleted== false).AsNoTracking().Where(d => d.Description != null).ToList();
 
 
-            return dbcontext.Departements.ToList();
+            return dbcontext.Departements.Where(D => D.IsDeleted == false).ToList();
 
         }
         public Departement? GetById(int id)
@@ -64,7 +64,9 @@ namespace Ikea_Data_Acsess_Layer.Pesintance.Repositories.Departments
         }
         public int Delete(Departement department)
         {
-            dbcontext.Departements.Remove(department);
+
+            department.IsDeleted = true;
+            dbcontext.Departements.Update(department);
 
             return dbcontext.SaveChanges();
         }

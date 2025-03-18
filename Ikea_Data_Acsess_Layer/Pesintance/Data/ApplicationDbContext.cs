@@ -1,4 +1,5 @@
 ﻿using Ikea_Data_Acsess_Layer.Models.Departments;
+using Ikea_Data_Acsess_Layer.Models.Empolyees;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,17 +18,18 @@ namespace Ikea_Data_Acsess_Layer.Pesintance.Data
 
 
         }
-      
 
 
 
 
 
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-        //}
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        }
         public DbSet<Departement> Departements { get; set; }
 
+        public DbSet<Employee> Employees { get; set; }
     }
 }

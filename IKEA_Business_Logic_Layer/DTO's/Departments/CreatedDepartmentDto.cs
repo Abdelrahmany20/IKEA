@@ -12,7 +12,7 @@ namespace IKEA_Business_Logic_Layer.DTO_s.Departments
         [Required(ErrorMessage = "Name Is Required")]
 
         public string Name { get; set; } = null!;
-        [Required (ErrorMessage="Code Is Required")]
+        [Required(ErrorMessage = "Code Is Required")]
         public string Code { get; set; } = null!;
         public string? Description { get; set; }
 
