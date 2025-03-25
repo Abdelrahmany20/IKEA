@@ -188,45 +188,45 @@ namespace IKEA_PresentationLayer.Controllers
 
         [HttpGet]
 
-        public IActionResult Delete (int? id)
+        public IActionResult Delete(int? Id)
         {
-            if (id is null)
+            if (Id is null)
                 return BadRequest();
-            var department = departementServices.GetDepartmentByiId(id.Value);
-            if (department is null)
+
+            var Department = departementServices.GetDepartmentByiId(Id.Value);
+
+            if (Department is null)
                 return NotFound();
-            return View(department);
+
+
+            return View(Department);
         }
 
-
         [HttpPost]
-
-
         public IActionResult Delete(int DeptId)
         {
-            var Message=string.Empty;
+            var message = string.Empty;
             try
             {
                 var IsDeleted = departementServices.DeleteDepartment(DeptId);
-                if(IsDeleted)
+                if (IsDeleted)
                     return RedirectToAction(nameof(Index));
 
-                Message = "Department is not deleted";
+                message = "Department Is Not Deleted";
 
             }
             catch (Exception ex)
             {
-                logger.LogError(ex,ex.Message);
-                Message = environment.IsDevelopment() ? ex.ToString() : "An error occurred while deleting the department.";
+                //1.log Exceptions
+                logger.LogError(ex, message);
 
+
+                // 2. Set Message
+                message = environment.IsDevelopment() ? ex.Message : "An Error has been occured during Delete the Department";
 
             }
-
-
-            ModelState.AddModelError(string.Empty, Message);
-            return RedirectToAction(nameof(Delete), new { id= DeptId });
-
-
+            ModelState.AddModelError(string.Empty, message);
+            return RedirectToAction(nameof(Delete), new { Id = DeptId });
         }
 
 

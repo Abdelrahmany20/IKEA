@@ -9,6 +9,8 @@ namespace Ikea_Data_Acsess_Layer.Commons.Enums
     public enum EmployeeType
     {
         PartTime=1,
-            FullTime=2
+            FullTime=2,
+        remote = 3,
+        internship = 4
     }
 }

@@ -70,7 +70,7 @@ namespace IKEA_Business_Logic_Layer.Services.DepartmentServices
                     Id = Department.Id,
                     Name = Department.Name,
                     Code = Department.Code,
-                    //Description = Department.Description,
+                    Description = Department.Description,
                     CreationDate = Department.CreationDate,
                     IsDeleted = Department.IsDeleted,
                     CreatedBy = Department.CreatedBy,

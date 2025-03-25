@@ -9,7 +9,7 @@ namespace Ikea_Data_Acsess_Layer.Commons.Enums
     public enum Gender
     {
 
-        Masle=1,
+        Male=1,
         Female=2
     }
 }

@@ -1,7 +1,9 @@
 using IKEA_Business_Logic_Layer.Services.DepartmentServices;
+using IKEA_Business_Logic_Layer.Services.EmployeeServices;
 using Ikea_Data_Acsess_Layer.Pesintance.Data;
 using Ikea_Data_Acsess_Layer.Pesintance.Repositories.Department;
 using Ikea_Data_Acsess_Layer.Pesintance.Repositories.Departments;
+using Ikea_Data_Acsess_Layer.Pesintance.Repositories.Employees;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,6 +32,8 @@ namespace IKEA_PresentationLayer
 
             builder.Services.AddScoped<IDepartmentRepository, DepartmentReposatory>();
             builder.Services.AddScoped<IDepartementServices, Departementservices>();
+            builder.Services.AddScoped<IEmployeeRepository, EmployeeReposatory>();
+            builder.Services.AddScoped<IEmployeeServices, EmployeeServices>();
 
 
 

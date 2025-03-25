@@ -1,5 +1,6 @@
 ﻿using Ikea_Data_Acsess_Layer.Models.Departments;
 using Ikea_Data_Acsess_Layer.Pesintance.Data;
+using Ikea_Data_Acsess_Layer.Pesintance.Repositories._Generic;
 using Ikea_Data_Acsess_Layer.Pesintance.Repositories.Department;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,65 +11,72 @@ using System.Threading.Tasks;
 
 namespace Ikea_Data_Acsess_Layer.Pesintance.Repositories.Departments
 {
-    public class DepartmentReposatory : IDepartmentRepository
+    public class DepartmentReposatory : GenericRepository<Departement>, IDepartmentRepository
     {
+        private readonly ApplicationDbContext _dbContext;
 
-        private ApplicationDbContext dbcontext { get; set; }
-
-        public DepartmentReposatory(ApplicationDbContext context)
+        public DepartmentReposatory(ApplicationDbContext context) : base(context)
         {
-            dbcontext = context;
+            _dbContext = context;
         }
+    
+
+    //    private ApplicationDbContext dbcontext { get; set; }
+
+    //    public DepartmentReposatory(ApplicationDbContext context)
+    //    {
+    //        dbcontext = context;
+    //    }
 
 
 
-        public IEnumerable<Departement> GetAll(bool withNoTracking = true)
+    //    public IEnumerable<Departement> GetAll(bool withNoTracking = true)
 
 
-        {
+    //    {
 
-            if (withNoTracking)
+    //        if (withNoTracking)
 
-                return dbcontext.Departements.Where(D=>D.IsDeleted== false).AsNoTracking().Where(d => d.Description != null).ToList();
-
-
-            return dbcontext.Departements.Where(D => D.IsDeleted == false).ToList();
-
-        }
-        public Departement? GetById(int id)
-        {
-
-    var department =dbcontext.Departements.Find(id);
+    //            return dbcontext.Departements.Where(D=>D.IsDeleted== false).AsNoTracking().Where(d => d.Description != null).ToList();
 
 
-            //    var department =dbcontext.Departements.Local.FirstOrDefault(d => d.Id == id);
-            //if (department is null)
+    //        return dbcontext.Departements.Where(D => D.IsDeleted == false).ToList();
 
-            //   department=dbcontext.Departements.FirstOrDefault(d => d.Id == id);
+    //    }
+    //    public Departement? GetById(int id)
+    //    {
+
+    //var department =dbcontext.Departements.Find(id);
 
 
-           return department;
-        }
-        public int Add(Departement department)
-        {
+    //        //    var department =dbcontext.Departements.Local.FirstOrDefault(d => d.Id == id);
+    //        //if (department is null)
 
-            dbcontext.Departements.Add(department);
+    //        //   department=dbcontext.Departements.FirstOrDefault(d => d.Id == id);
 
-            return dbcontext.SaveChanges();
-        }
-        public int Update(Departement department)
-        {
-            dbcontext.Departements.Update(department);
 
-            return dbcontext.SaveChanges();
-        }
-        public int Delete(Departement department)
-        {
+    //       return department;
+    //    }
+    //    public int Add(Departement department)
+    //    {
 
-            department.IsDeleted = true;
-            dbcontext.Departements.Update(department);
+    //        dbcontext.Departements.Add(department);
 
-            return dbcontext.SaveChanges();
-        }
+    //        return dbcontext.SaveChanges();
+    //    }
+    //    public int Update(Departement department)
+    //    {
+    //        dbcontext.Departements.Update(department);
+
+    //        return dbcontext.SaveChanges();
+    //    }
+    //    public int Delete(Departement department)
+    //    {
+
+    //        department.IsDeleted = true;
+    //        dbcontext.Departements.Update(department);
+
+    //        return dbcontext.SaveChanges();
+    //    }
     }
 }

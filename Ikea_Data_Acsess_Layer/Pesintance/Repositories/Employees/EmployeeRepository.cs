@@ -1,6 +1,7 @@
 ﻿using Ikea_Data_Acsess_Layer.Models.Departments;
 using Ikea_Data_Acsess_Layer.Models.Empolyees;
 using Ikea_Data_Acsess_Layer.Pesintance.Data;
+using Ikea_Data_Acsess_Layer.Pesintance.Repositories._Generic;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,64 +11,71 @@ using System.Threading.Tasks;
 
 namespace Ikea_Data_Acsess_Layer.Pesintance.Repositories.Employees
 {
-    class EmployeeRepository : IEmployeeRepository
+    public class EmployeeReposatory : GenericRepository<Employee>, IEmployeeRepository
     {
-        private ApplicationDbContext dbcontext { get; set; }
+        private readonly ApplicationDbContext _dbContext;
 
-        public EmployeeRepository(ApplicationDbContext context)
+        public EmployeeReposatory(ApplicationDbContext context) : base(context)
         {
-            dbcontext = context;
+            _dbContext = context;
         }
+    
+        //private ApplicationDbContext dbcontext { get; set; }
+
+        //public EmployeeRepository(ApplicationDbContext context)
+        //{
+        //    dbcontext = context;
+        //}
 
 
 
-        public IEnumerable<Employee> GetAll(bool withNoTracking = true)
+        //public IEnumerable<Employee> GetAll(bool withNoTracking = true)
 
 
-        {
+        //{
 
-            if (withNoTracking)
+        //    if (withNoTracking)
 
-                return dbcontext.Employees.Where(D => D.IsDeleted == false).AsNoTracking().ToList();
-
-
-            return dbcontext.Employees.Where(D => D.IsDeleted == false).ToList();
-
-        }
-        public Employee? GetById(int id)
-        {
-
-            var Employee = dbcontext.Employees.Find(id);
+        //        return dbcontext.Employees.Where(D => D.IsDeleted == false).AsNoTracking().ToList();
 
 
-            //    var department =dbcontext.Departements.Local.FirstOrDefault(d => d.Id == id);
-            //if (department is null)
+        //    return dbcontext.Employees.Where(D => D.IsDeleted == false).ToList();
 
-            //   department=dbcontext.Departements.FirstOrDefault(d => d.Id == id);
+        //}
+        //public Employee? GetById(int id)
+        //{
+
+        //    var Employee = dbcontext.Employees.Find(id);
 
 
-            return Employee;
-        }
-        public int Add(Employee employee)
-        {
+        //    //    var department =dbcontext.Departements.Local.FirstOrDefault(d => d.Id == id);
+        //    //if (department is null)
 
-            dbcontext.Employees.Add(employee);
+        //    //   department=dbcontext.Departements.FirstOrDefault(d => d.Id == id);
 
-            return dbcontext.SaveChanges();
-        }
-        public int Update(Employee employee)
-        {
-            dbcontext.Employees.Update(employee);
 
-            return dbcontext.SaveChanges();
-        }
-        public int Delete(Employee employee)
-        {
+        //    return Employee;
+        //}
+        //public int Add(Employee employee)
+        //{
 
-            employee.IsDeleted = true;
-            dbcontext.Employees.Update(employee);
+        //    dbcontext.Employees.Add(employee);
 
-            return dbcontext.SaveChanges();
-        }
+        //    return dbcontext.SaveChanges();
+        //}
+        //public int Update(Employee employee)
+        //{
+        //    dbcontext.Employees.Update(employee);
+
+        //    return dbcontext.SaveChanges();
+        //}
+        //public int Delete(Employee employee)
+        //{
+
+        //    employee.IsDeleted = true;
+        //    dbcontext.Employees.Update(employee);
+
+        //    return dbcontext.SaveChanges();
+        //}
     }
 }
