@@ -1,4 +1,5 @@
 ﻿using Ikea_Data_Acsess_Layer.Commons.Enums;
+using Ikea_Data_Acsess_Layer.Models.Departments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,15 @@ namespace Ikea_Data_Acsess_Layer.Models.Empolyees
 
         public EmployeeType EmployeeType { get; set; }
 
+
+
+
+        public int? DepartmentId { get; set; } //FK [one to many]
+
+        //nav prop [one]
+        public virtual Departement? Department { get; set; }
+
+        public string? ImageName { get; set; }
 
 
     }

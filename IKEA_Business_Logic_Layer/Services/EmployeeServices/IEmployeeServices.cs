@@ -11,15 +11,16 @@ namespace IKEA_Business_Logic_Layer.Services.EmployeeServices
     {
 
 
-        IEnumerable<EmployeeDto> GetAllEmployees();
+       Task< IEnumerable<EmployeeDto>> GetAllEmployees(string search);
 
-        EmployeeDetailsDto? GetEmployeeById(int id);
 
-        int CreateEmployee(CreatedEmployeeDto employeeDto);
+        Task< EmployeeDetailsDto>? GetEmployeeById(int id);
 
-        int UpdateEmployee(UpdatedEmployeeDto employeeDto);
+        Task<int> CreateEmployee(CreatedEmployeeDto employeeDto);
 
-        bool DeleteEmployee(int id);
+        Task<int> UpdateEmployee(UpdatedEmployeeDto employeeDto);
+
+        Task<bool> DeleteEmployee(int id);
 
     }
 }

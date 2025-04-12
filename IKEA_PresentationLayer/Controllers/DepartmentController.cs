@@ -1,199 +1,212 @@
-﻿using IKEA_Business_Logic_Layer.DTO_s;
+﻿using AutoMapper;
+using IKEA_Business_Logic_Layer.DTO_s;
 using IKEA_Business_Logic_Layer.DTO_s.Departments;
 using IKEA_Business_Logic_Layer.Services.DepartmentServices;
 using Ikea_Data_Acsess_Layer.Models.Departments;
+using IKEA_PresentationLayer.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Client;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace IKEA_PresentationLayer.Controllers
 {
+
+
+    [Authorize]
+
     public class DepartmentController : Controller
     {
-
-        #region Services
-        private IDepartementServices departementServices;
+        private readonly IDepartementServices departementServices;
+        private readonly IMapper mapper;
         private readonly ILogger<DepartmentController> logger;
+
         private readonly IWebHostEnvironment environment;
-        private readonly IWebHostEnvironment hostEnvironment;
 
-        public DepartmentController(IDepartementServices _departementServices, ILogger<DepartmentController> _logger, IWebHostEnvironment environment)
+        public DepartmentController(IDepartementServices _departementService,IMapper mapper, ILogger<DepartmentController> _logger, IWebHostEnvironment environment)
         {
-
-            departementServices = _departementServices;
+            departementServices = _departementService;
+            this.mapper = mapper;
             logger = _logger;
             this.environment = environment;
-        } 
+        }
+        #region Index
+
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var Departments = await departementServices.GetAllDebartments();
+
+            return View(Departments);  
+        }
         #endregion
 
-        #region Index
+
+        #region Details
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Details(int? Id)
         {
-            var Departments = departementServices.GetAllDebartments();
-            return View(Departments);
+            if (Id is null)
+                return BadRequest();
+
+            var department = await departementServices.GetDepartmentByiId(Id.Value);
+            if (department is null)
+                return NotFound();
+            return View(department);
 
         }
 
+
+        #endregion
+
+
+        #region Create
 
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
-
-        #endregion
-
-
-
-
-
-        #region Create
-
         [HttpPost]
 
-        public IActionResult Create(CreatedDepartmentDto departmentDto)
+        public async Task<IActionResult> Create(DepartementViewModel departmentVM)
         {
             if (!ModelState.IsValid)
             {
-                return View(departmentDto);
+                return View(departmentVM);
             }
-
+            var Message = string.Empty;
             try
             {
-                var result = departementServices.CreateDepartment(departmentDto);
-                if (result > 0)
+                var departmentDto=mapper.Map<DepartementViewModel, CreatedDepartmentDto>(departmentVM);
+                //var departmentDto = new CreatedDepartmentDto()
+                //{
+                //    Name = departmentVM.Name,
+                //    Code = departmentVM.Code,
+                //    Description = departmentVM.Description,
+                //    CreationDate = DateOnly.FromDateTime(DateTime.Now),
+                //};
+                var Result = await departementServices.CreateDepartment(departmentDto);
+
+                if (Result > 0)
+
                 {
+                    TempData["Message"] = $"{departmentDto.Name}  Department Created Successfully";
+
                     return RedirectToAction(nameof(Index));
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Error: Could not create department.");
+                    Message = "Department is not Created";
+                    ModelState.AddModelError(string.Empty, Message);
                     return View(departmentDto);
+
                 }
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, ex.Message);
-                ModelState.AddModelError(string.Empty, "An error occurred while creating the department.");
-                return View(departmentDto);
+                if (environment.IsDevelopment())
+                {
+                    Message = ex.Message;
+                }
+                else
+                {
+                    Message = "An Error Effect at The Creation Operator";
+                }
             }
 
+            ModelState.AddModelError(string.Empty, Message);
+            return View(departmentVM);
+
+
 
 
         }
-        #endregion
-
-
-
-
-        #region Details
-
-        [HttpGet]
-
-        public IActionResult Details(int? id)
-        {
-
-
-            if( id is null)
-                return BadRequest();
-
-
-
-
-                var department = departementServices.GetDepartmentByiId(id.Value);
-
-
-
-                if (department is null)
-                    return NotFound();
-
-
-            return View(department);
-
-        }
-
-
-
 
         #endregion
-
 
 
         #region Update
         [HttpGet]
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? Id)
         {
-           if( id is null)
+            if (Id is null)
                 return BadRequest();
 
+            var Department = await departementServices.GetDepartmentByiId(Id.Value);
 
-            var department = departementServices.GetDepartmentByiId(id.Value);
-            if (department is null)
+            if (Department is null)
                 return NotFound();
 
-            var MappedDepartment = new UpdatedDepartmentDto()
-            {
-                Id = department.Id,
-                Name = department.Name,
-                Code = department.Code,
-                Description = department.Description,
-                CreationDate = department.CreationDate
-            };
 
+            var MappedDepartment=mapper.Map<DartmentDetailsDto, DepartementViewModel>(Department);
+            //var MappedDepartment = new DepartementViewModel()
+            //{
+            //    Id = Department.Id,
+            //    Name = Department.Name,
+            //    Code = Department.Code,
+            //    Description = Department.Description,
+            //    CreationDate = Department.CreationDate,
+
+            //};
 
             return View(MappedDepartment);
-
         }
 
         [HttpPost]
-
-        public IActionResult Edit(UpdatedDepartmentDto departmentDto)
-
+        public async Task<IActionResult> Edit(DepartementViewModel departmentVM)
         {
             if (!ModelState.IsValid)
-                return View(departmentDto);
-
-            var Message = String.Empty;
+                return View(departmentVM);
+            var Message = string.Empty;
             try
             {
-                var Result = departementServices.UpdateDepartment(departmentDto);
-                if (Result>0)   
+                var departmentDto=mapper.Map<DepartementViewModel, UpdatedDepartmentDto>(departmentVM);
+                //var departmentDto = new UpdatedDepartmentDto()
+                //{
+                //    Id = departmentVM.Id,
+                //    Name = departmentVM.Name,
+                //    Code = departmentVM.Code,
+                //    CreationDate = departmentVM.CreationDate,
+                //    Description = departmentVM.Description,
+                //};
+                var Result = await departementServices.UpdateDepartment(departmentDto);
+
+                if (Result > 0)
                     return RedirectToAction(nameof(Index));
-
                 else
-                    Message = "Department is not updated";
-
-
+                    Message = "Department is Not Updated";
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred in Edit POST: {Message}", ex.Message);
-                Message = environment.IsDevelopment() ? ex.ToString() : "An error occurred while updating the department.";
+
+                //1.log Exceptions
+                logger.LogError(ex, Message);
+
+
+                // 2. Set Message
+                Message = environment.IsDevelopment() ? ex.Message : "An Error has been occured during Update the Department";
+
             }
 
             ModelState.AddModelError(string.Empty, Message);
-            return View(departmentDto);
-
-
-
+            return View(departmentVM);
         }
-
 
         #endregion
 
 
         #region Delete
-
-
         [HttpGet]
 
-        public IActionResult Delete(int? Id)
+        public async Task<IActionResult> Delete(int? Id)
         {
             if (Id is null)
                 return BadRequest();
 
-            var Department = departementServices.GetDepartmentByiId(Id.Value);
+            var Department = await departementServices.GetDepartmentByiId(Id.Value);
 
             if (Department is null)
                 return NotFound();
@@ -203,12 +216,12 @@ namespace IKEA_PresentationLayer.Controllers
         }
 
         [HttpPost]
-        public IActionResult Delete(int DeptId)
+        public async Task<IActionResult> Delete(int DeptId)
         {
             var message = string.Empty;
             try
             {
-                var IsDeleted = departementServices.DeleteDepartment(DeptId);
+                var IsDeleted = await departementServices.DeleteDepartment(DeptId);
                 if (IsDeleted)
                     return RedirectToAction(nameof(Index));
 
@@ -229,9 +242,7 @@ namespace IKEA_PresentationLayer.Controllers
             return RedirectToAction(nameof(Delete), new { Id = DeptId });
         }
 
-
         #endregion
-
-
     }
+
 }

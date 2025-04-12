@@ -9,19 +9,19 @@ using System.Threading.Tasks;
 
 namespace IKEA_Business_Logic_Layer.Services.DepartmentServices
 {
-   public  interface IDepartementServices
+    public interface IDepartementServices
     {
 
         //DTO   Data Transfer Object
-        IEnumerable<DartmentDto> GetAllDebartments();
+        Task<IEnumerable<DartmentDto>> GetAllDebartments();
 
-        DartmentDetailsDto? GetDepartmentByiId (int id);
+        Task<DartmentDetailsDto>? GetDepartmentByiId(int id);
 
-        int CreateDepartment(CreatedDepartmentDto departmentDto);
+        Task<int> CreateDepartment(CreatedDepartmentDto departmentDto);
 
-        int UpdateDepartment( UpdatedDepartmentDto departmentDto);
+        Task<int> UpdateDepartment(UpdatedDepartmentDto departmentDto);
 
-        bool DeleteDepartment(int id);
+        Task<bool> DeleteDepartment(int id);
 
 
     }

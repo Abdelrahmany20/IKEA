@@ -1,4 +1,5 @@
-﻿using Ikea_Data_Acsess_Layer.Commons.Enums;
+﻿
+using Ikea_Data_Acsess_Layer.Commons.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,11 @@ namespace IKEA_Business_Logic_Layer.DTO_s.Employees
         public Gender Gender { get; set; }
 
         public EmployeeType EmployeeType { get; set; }
+
+        public string? Department { get; set; }
+
+        public string? ImageName { get; set; }
+
 
 
     }

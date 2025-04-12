@@ -23,9 +23,11 @@ namespace IKEA_Business_Logic_Layer.DTO_s.Employees
 
         public string? Email { get; set; }
 
-        public Gender Gender { get; set; } 
+        public Gender Gender { get; set; }
 
         public EmployeeType EmployeeType { get; set; }
+
+        public string? Department { get; set; }
 
     }
 }

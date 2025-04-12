@@ -22,39 +22,56 @@ namespace Ikea_Data_Acsess_Layer.Pesintance.Repositories._Generic
 
 
 
-        public IEnumerable<T> GetAll(bool WithNoTracking = true)
+        public IQueryable<T> GetAll(bool WithNoTracking = true)
         {
-            if (WithNoTracking)
-                return _dbContext.Set<T>().Where(D => D.IsDeleted == false).AsNoTracking().ToList();
+            var query = _dbContext.Set<T>().AsQueryable();
 
-            return _dbContext.Set<T>().Where(D => D.IsDeleted == false).ToList();
+            if (typeof(T).GetProperty("IsDeleted") != null)
+            {
+                query = query.Where(x => !EF.Property<bool>(x, "IsDeleted")); 
+            }
+
+            if (WithNoTracking)
+                return query.AsNoTracking();
+
+            return query;
         }
 
-        public T? GetById(int id)
+        public async Task<T?> GetById(int id)
         {
-            var itme = _dbContext.Set<T>().Find(id);
+            var itme = await _dbContext.Set<T>().FindAsync(id);
 
             return itme;
         }
 
-        public int Add(T Item)
+        public void Add(T Item)
         {
             _dbContext.Set<T>().Add(Item);
-            return _dbContext.SaveChanges();
+            //return _dbContext.SaveChanges();
         }
 
-        public int Update(T Item)
+        public void Update(T Item)
         {
             _dbContext.Set<T>().Update(Item);
-            return _dbContext.SaveChanges();
+            //return _dbContext.SaveChanges();
         }
 
-        public int Delete(T Item)
+        public void Delete(T item)
         {
-            Item.IsDeleted = true;
-            _dbContext.Set<T>().Update(Item);
-            return _dbContext.SaveChanges();
+            var propertyInfo = typeof(T).GetProperty("IsDeleted");
+
+            if (propertyInfo != null)
+            {
+                propertyInfo.SetValue(item, true);
+
+                _dbContext.Set<T>().Update(item);
+                //return _dbContext.SaveChanges();
+            }
+
+            _dbContext.Set<T>().Remove(item);
+            //return _dbContext.SaveChanges();
         }
     }
 }
+
 

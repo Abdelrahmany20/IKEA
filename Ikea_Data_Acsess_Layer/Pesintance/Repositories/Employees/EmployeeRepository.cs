@@ -19,7 +19,15 @@ namespace Ikea_Data_Acsess_Layer.Pesintance.Repositories.Employees
         {
             _dbContext = context;
         }
-    
+
+
+        public Employee? GetEmployeeWithDepartmentById(int id)
+        {
+            return _dbContext.Employees
+                           .Include(e => e.Department)
+                           .FirstOrDefault(e => e.Id == id);
+        }
+
         //private ApplicationDbContext dbcontext { get; set; }
 
         //public EmployeeRepository(ApplicationDbContext context)

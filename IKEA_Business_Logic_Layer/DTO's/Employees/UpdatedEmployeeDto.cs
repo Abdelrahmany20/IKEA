@@ -1,6 +1,8 @@
 ﻿using Ikea_Data_Acsess_Layer.Commons.Enums;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,6 +31,14 @@ namespace IKEA_Business_Logic_Layer.DTO_s.Employees
         public Gender Gender { get; set; }
 
         public EmployeeType EmployeeType { get; set; }
+
+        [Display(Name = "Department")]
+
+        public int? DepartmentId { get; set; }
+
+        public string? ImageName { get; set; }
+        public IFormFile? Image { get; set; }
+
 
     }
 }

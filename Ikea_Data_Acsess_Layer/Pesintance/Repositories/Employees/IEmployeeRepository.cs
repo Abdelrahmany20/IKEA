@@ -18,8 +18,9 @@ namespace Ikea_Data_Acsess_Layer.Pesintance.Repositories.Employees
         //int Add(Employees employees);
         //int Update(Employees employees);
         //int Delete(Employees employees);
+        
+    Employee? GetEmployeeWithDepartmentById(int id);
+    
 
-
-
-    }
+}
 }

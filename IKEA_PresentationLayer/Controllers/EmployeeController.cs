@@ -1,13 +1,20 @@
-﻿using IKEA_Business_Logic_Layer.DTO_s;
+﻿ using IKEA_Business_Logic_Layer.DTO_s;
 using IKEA_Business_Logic_Layer.DTO_s.Departments;
 using IKEA_Business_Logic_Layer.DTO_s.Employees;
 using IKEA_Business_Logic_Layer.Services.DepartmentServices;
 using IKEA_Business_Logic_Layer.Services.EmployeeServices;
+using IKEA_PresentationLayer.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.DotNet.Scaffolding.Shared.Messaging;
+using System.Threading.Tasks;
 
 namespace IKEA_PresentationLayer.Controllers
 {
+
+
+    [Authorize]
+
     public class EmployeeController : Controller
     {
         #region Servicse-DI
@@ -15,15 +22,13 @@ namespace IKEA_PresentationLayer.Controllers
         private readonly ILogger logger;
         private readonly IWebHostEnvironment environment;
 
-        public EmployeeController(IEmployeeServices employeeServices, ILogger<EmployeeController> logger, IWebHostEnvironment environment)
+        public EmployeeController(IEmployeeServices employeeServices,IDepartementServices departementServices , ILogger<EmployeeController> logger, IWebHostEnvironment environment)
         {
             this.employeeServices = employeeServices;
             this.logger = logger;
             this.environment = environment;
         }
         #endregion
-
-
 
         #region Index
 
@@ -34,15 +39,13 @@ namespace IKEA_PresentationLayer.Controllers
 
 
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(string search)
         {
 
-            var Employees = employeeServices.GetAllEmployees();
+            var Employees = await employeeServices.GetAllEmployees( search);
             return View(Employees);
         }
         #endregion
-
-
 
 
 
@@ -54,51 +57,107 @@ namespace IKEA_PresentationLayer.Controllers
         [HttpGet]
         public IActionResult Create()
         {
+              
 
             return View();
 
         }
 
-        [HttpPost]
 
-        public IActionResult Create(CreatedEmployeeDto employeeDto)
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task< IActionResult> Create(EmployeeViewModel employeeVM)
         {
             if (!ModelState.IsValid)
             {
-                return View(employeeDto);
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
+                return View(employeeVM); 
             }
 
+            var message = string.Empty;
             try
             {
-                var result = employeeServices.CreateEmployee(employeeDto);
+                if (employeeVM.Image != null && employeeVM.Image.Length > 0)
+                {
+                    var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "files", "images");
+                    if (!Directory.Exists(folderPath))
+                    {
+                        Directory.CreateDirectory(folderPath);
+                    }
+
+                    var fileName = $"{Guid.NewGuid()}_{employeeVM.Image.FileName}";
+                    var filePath = Path.Combine(folderPath, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        employeeVM.Image.CopyTo(stream);
+                    }
+
+                    employeeVM.ImageName = fileName;
+                }
+
+                var employeeDto = new CreatedEmployeeDto()
+                {
+                    name = employeeVM.name,
+                    Age = employeeVM.Age,
+                    Address = employeeVM.Address,
+                    Salary = employeeVM.Salary,
+                    IsActive = employeeVM.IsActive,
+                    Email = employeeVM.Email,
+                    PhoneNumber = employeeVM.PhoneNumber,
+                    HiringDate = employeeVM.HiringDate,
+                    Gender = employeeVM.Gender,
+                    EmployeeType = employeeVM.EmployeeType,
+                    DepartmentId = employeeVM.DepartmentId,
+                    Image = employeeVM.Image    
+                };
+
+                var result = await employeeServices.CreateEmployee(employeeDto);
                 if (result > 0)
                 {
                     return RedirectToAction(nameof(Index));
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Error: Could not create department.");
-                    return View(employeeDto);
+                    message = "Error: Could not create employee.";
+                    ModelState.AddModelError(string.Empty, message);
+                    return View(employeeVM);
                 }
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, ex.Message);
-                ModelState.AddModelError(string.Empty, "An error occurred while creating the department.");
-                return View(employeeDto);
+                if (environment.IsDevelopment())
+                {
+                    message = ex.Message;
+                }
+                else
+                {
+                    message = "An Error Effect at The Creation Operator";
+                }
             }
 
-
-
+            ModelState.AddModelError(string.Empty, message);
+            return View(employeeVM);
         }
         #endregion
+
+
+
 
 
         #region Details
 
         [HttpGet]
+        //[Authorize(Roles = "user")]
 
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
 
 
@@ -108,7 +167,7 @@ namespace IKEA_PresentationLayer.Controllers
 
 
 
-            var employee = employeeServices.GetEmployeeById(id.Value);
+            var employee = await employeeServices.GetEmployeeById(id.Value);
 
 
 
@@ -125,19 +184,24 @@ namespace IKEA_PresentationLayer.Controllers
 
         #endregion
 
+
+
+
+
+
         #region Update
         [HttpGet]
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id is null)
                 return BadRequest();
 
 
-            var employee = employeeServices.GetEmployeeById(id.Value);
+            var employee = await     employeeServices.GetEmployeeById(id.Value);
             if (employee is null)
                 return NotFound();
 
-            var MappedEmployee = new UpdatedEmployeeDto()
+            var MappedEmployee = new EmployeeViewModel()
             {
                 Id = employee.Id,
                 name = employee.Name,
@@ -148,7 +212,10 @@ namespace IKEA_PresentationLayer.Controllers
                 Gender = employee.Gender,
                 EmployeeType = employee.EmployeeType,
                 IsActive = employee.IsActive,
+                ImageName = employee.ImageName
             };
+
+
 
 
             return View(MappedEmployee);
@@ -156,24 +223,36 @@ namespace IKEA_PresentationLayer.Controllers
         }
 
         [HttpPost]
-
-        public IActionResult Edit (UpdatedEmployeeDto employeeDto)
-
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(EmployeeViewModel employeeVM)
         {
             if (!ModelState.IsValid)
-                return View(employeeDto);
+                return View(employeeVM);
 
             var Message = String.Empty;
             try
             {
-                var Result = employeeServices.UpdateEmployee(employeeDto);
+                var employeeDto = new UpdatedEmployeeDto()
+                {
+                    Id = employeeVM.Id,
+                    name = employeeVM.name,
+                    Age = employeeVM.Age,
+                    Address = employeeVM.Address,
+                    Salary = employeeVM.Salary,
+                    IsActive = employeeVM.IsActive,
+                    Email = employeeVM.Email,
+                    PhoneNumber = employeeVM.PhoneNumber,
+                    HiringDate = employeeVM.HiringDate,
+                    Gender = employeeVM.Gender,
+                    EmployeeType = employeeVM.EmployeeType,
+                    ImageName = employeeVM.ImageName 
+                };
+
+                var Result = await employeeServices.UpdateEmployee(employeeDto);
                 if (Result > 0)
                     return RedirectToAction(nameof(Index));
-
                 else
                     Message = "Employee is not updated";
-
-
             }
             catch (Exception ex)
             {
@@ -182,26 +261,27 @@ namespace IKEA_PresentationLayer.Controllers
             }
 
             ModelState.AddModelError(string.Empty, Message);
-            return View(employeeDto);
-
-
-
+            return View(employeeVM);
         }
 
-
         #endregion
+
+
+
+
+
 
         #region Delete
 
 
         [HttpGet]
 
-        public IActionResult Delete(int? Id)
+        public async Task<IActionResult> Delete(int? Id)
         {
             if (Id is null)
                 return BadRequest();
 
-            var employee = employeeServices.GetEmployeeById(Id.Value);
+            var employee = await employeeServices.GetEmployeeById(Id.Value);
 
             if (employee is null)
                 return NotFound();
@@ -210,29 +290,27 @@ namespace IKEA_PresentationLayer.Controllers
             return View(employee);
         }
 
+
+
+
         [HttpPost]
-        public IActionResult Delete(int Empid)
+        public async Task<IActionResult> Delete(int Empid)
         {
             var message = string.Empty;
             try
             {
-                var IsDeleted = employeeServices.DeleteEmployee(Empid);
+                var IsDeleted = await employeeServices.DeleteEmployee(Empid);
                 if (IsDeleted)
                     return RedirectToAction(nameof(Index));
 
                 message = "Employee Is Not Deleted";
-
             }
             catch (Exception ex)
             {
-                //1.log Exceptions
                 logger.LogError(ex, message);
-
-
-                // 2. Set Message
-                message = environment.IsDevelopment() ? ex.Message : "An Error has been occured during Delete the Employee";
-
+                message = environment.IsDevelopment() ? ex.Message : "An Error has been occurred during Delete the Employee";
             }
+
             ModelState.AddModelError(string.Empty, message);
             return RedirectToAction(nameof(Delete), new { Id = Empid });
         }

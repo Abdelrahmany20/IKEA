@@ -1,4 +1,4 @@
-﻿using Ikea_Data_Acsess_Layer.Models;
+﻿ using Ikea_Data_Acsess_Layer.Models;
 using Ikea_Data_Acsess_Layer.Models.Departments;
 using Ikea_Data_Acsess_Layer.Models.Empolyees;
 using System;
@@ -12,14 +12,13 @@ namespace Ikea_Data_Acsess_Layer.Pesintance.Repositories._Generic
    public interface IGenericRepository<T> where T:ModelBase
     {
 
-        IEnumerable<T> GetAll(bool WithNoTracking = true);
+        IQueryable<T> GetAll(bool WithNoTracking = true);
 
-        T? GetById(int id);
+       Task<T>? GetById(int id);
 
-        int Add(T Entity);
-        int Update(T Entity);
-        int Delete(T Entity);
-
+        void Add(T Entity);
+        void Update(T Entity);
+        void Delete(T Entity);
 
 
 
